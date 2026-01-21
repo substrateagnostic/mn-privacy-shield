@@ -1,0 +1,18 @@
+<svg width="128" height="128" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="128" height="128" rx="16" fill="#f9f9f7"/>
+
+  <!-- Shield shape -->
+  <path d="M64 16L24 36V68C24 97.6 40.48 124.64 64 132C87.52 124.64 104 97.6 104 68V36L64 16Z" fill="#4a0404"/>
+
+  <!-- Inner shield highlight -->
+  <path d="M64 24L32 40V68C32 92.8 45.44 115.52 64 122C82.56 115.52 96 92.8 96 68V40L64 24Z" fill="#6b1010"/>
+
+  <!-- Privacy bars -->
+  <rect x="48" y="52" width="32" height="6" rx="1" fill="#f9f9f7"/>
+  <rect x="52" y="64" width="24" height="6" rx="1" fill="#f9f9f7"/>
+  <rect x="56" y="76" width="16" height="6" rx="1" fill="#f9f9f7"/>
+
+  <!-- Border -->
+  <rect x="4" y="4" width="120" height="120" rx="12" stroke="#111111" stroke-width="4" fill="none"/>
+</svg>

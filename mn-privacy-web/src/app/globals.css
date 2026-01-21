@@ -1,0 +1,323 @@
+@import "tailwindcss";
+
+/**
+ * MN Privacy Shield
+ * Galle-From® Bedrock Design System
+ *
+ * над. нашу. присутствие. память.
+ */
+
+:root {
+  /* Galle-From® Bedrock Standard */
+  --background: #f9f9f7;
+  --foreground: #111111;
+  --accent: #4a0404;
+  --accent-hover: #6b1010;
+  --accent-foreground: #f9f9f7;
+  --muted: #666666;
+  --muted-foreground: #888888;
+  --border: #111111;
+  --card: #ffffff;
+  --card-foreground: #111111;
+  --secondary: #e5e5e3;
+  --secondary-foreground: #111111;
+  --success: #166534;
+  --success-bg: #dcfce7;
+  --warning: #a16207;
+  --warning-bg: #fef9c3;
+  --error: #991b1b;
+  --error-bg: #fee2e2;
+
+  /* Fonts */
+  --font-sans: 'Inter Tight', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', 'SF Mono', 'Consolas', monospace;
+  --font-serif: 'Merriweather', 'Georgia', serif;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #111111;
+    --foreground: #f9f9f7;
+    --accent: #6b1010;
+    --accent-hover: #8b2020;
+    --accent-foreground: #f9f9f7;
+    --muted: #888888;
+    --muted-foreground: #aaaaaa;
+    --border: #f9f9f7;
+    --card: #1a1a1a;
+    --card-foreground: #f9f9f7;
+    --secondary: #2a2a2a;
+    --secondary-foreground: #f9f9f7;
+    --success: #22c55e;
+    --success-bg: rgba(34, 197, 94, 0.15);
+    --warning: #facc15;
+    --warning-bg: rgba(250, 204, 21, 0.15);
+    --error: #ef4444;
+    --error-bg: rgba(239, 68, 68, 0.15);
+  }
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-success: var(--success);
+  --color-success-bg: var(--success-bg);
+  --color-warning: var(--warning);
+  --color-warning-bg: var(--warning-bg);
+  --color-error: var(--error);
+  --color-error-bg: var(--error-bg);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+}
+
+/* Base Styles */
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  line-height: 1.6;
+}
+
+/* Sharp borders - signature Galle-From style */
+.border,
+[class*="border-"] {
+  border-radius: 0 !important;
+}
+
+/* Override Tailwind rounded classes */
+.rounded,
+.rounded-sm,
+.rounded-md,
+.rounded-lg,
+.rounded-xl,
+.rounded-2xl,
+.rounded-3xl,
+.rounded-full {
+  border-radius: 0 !important;
+}
+
+/* Exception: Allow rounded for specific utility needs */
+.allow-rounded {
+  border-radius: revert !important;
+}
+
+/* Focus states */
+*:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Selection */
+::selection {
+  background: var(--accent);
+  color: var(--accent-foreground);
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--secondary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--muted);
+  border: 2px solid var(--secondary);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--foreground);
+}
+
+/* Utility classes */
+.font-mono {
+  font-family: var(--font-mono) !important;
+}
+
+.font-serif {
+  font-family: var(--font-serif) !important;
+}
+
+/* Bedrock button style */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 1.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent-foreground);
+  background: var(--accent);
+  border: 2px solid var(--border);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-primary:hover {
+  background: var(--accent-hover);
+  transform: translateY(-2px);
+  box-shadow: 4px 4px 0 var(--border);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 1.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--foreground);
+  background: var(--background);
+  border: 2px solid var(--border);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-secondary:hover {
+  background: var(--foreground);
+  color: var(--background);
+}
+
+/* Card style */
+.card {
+  background: var(--card);
+  border: 2px solid var(--border);
+  padding: 1.5rem;
+}
+
+/* Tag/badge style */
+.tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.125rem 0.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  border: 2px solid currentColor;
+}
+
+/* Status indicators */
+.status-active {
+  color: var(--success);
+  background: var(--success-bg);
+  border-color: var(--success);
+}
+
+.status-warning {
+  color: var(--warning);
+  background: var(--warning-bg);
+  border-color: var(--warning);
+}
+
+.status-error {
+  color: var(--error);
+  background: var(--error-bg);
+  border-color: var(--error);
+}
+
+/* Monospace label style */
+.label {
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* Input styling */
+input[type="text"],
+input[type="email"],
+input[type="tel"],
+input[type="url"],
+input[type="search"],
+textarea,
+select {
+  border: 2px solid var(--border);
+  border-radius: 0;
+  background: var(--background);
+  color: var(--foreground);
+  padding: 0.5rem 0.75rem;
+  font-family: var(--font-sans);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent);
+}
+
+/* Checkbox styling */
+input[type="checkbox"] {
+  appearance: none;
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid var(--border);
+  background: var(--background);
+  cursor: pointer;
+  position: relative;
+}
+
+input[type="checkbox"]:checked {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+input[type="checkbox"]:checked::after {
+  content: '';
+  position: absolute;
+  left: 3px;
+  top: 0;
+  width: 4px;
+  height: 8px;
+  border: solid var(--accent-foreground);
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+/* Links */
+a {
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+a:hover {
+  color: var(--accent);
+}
+
+/* Horizontal rule */
+hr {
+  border: none;
+  border-top: 2px solid var(--border);
+  margin: 1.5rem 0;
+}

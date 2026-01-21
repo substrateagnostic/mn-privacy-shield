@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MN Privacy Shield</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <header class="header">
+      <div class="header-content">
+        <div class="logo">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2L3 7V17L12 22L21 17V7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+            <path d="M12 8V16M8 10V14M16 10V14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="header-text">
+          <h1>MN PRIVACY SHIELD</h1>
+          <p class="subtitle">[GLOBAL PRIVACY CONTROL]</p>
+        </div>
+      </div>
+      <!-- Tab Navigation -->
+      <nav class="tabs">
+        <button id="tab-gpc" class="tab active" data-tab="gpc">GPC Signal</button>
+        <button id="tab-queue" class="tab" data-tab="queue">Opt-Out Queue</button>
+      </nav>
+    </header>
+
+    <!-- GPC Tab Content -->
+    <div id="content-gpc" class="tab-content active">
+      <!-- Status Section -->
+      <section class="status-section">
+        <div class="status-row">
+          <span class="status-label">GPC SIGNAL</span>
+          <span id="status-indicator" class="status-value status-active">ACTIVE</span>
+        </div>
+        <p id="status-description" class="status-description">
+          Websites are being told not to sell or share your data.
+        </p>
+      </section>
+
+      <!-- Toggle -->
+      <section class="toggle-section">
+        <button id="toggle-button" class="toggle-button active" aria-pressed="true">
+          <span class="toggle-text">PROTECTION ENABLED</span>
+          <span class="toggle-icon">
+            <svg id="icon-on" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 2L3 7V12C3 17.55 6.84 22.74 12 24C17.16 22.74 21 17.55 21 12V7L12 2Z" fill="currentColor"/>
+              <path d="M10 17L6 13L7.41 11.59L10 14.17L16.59 7.58L18 9L10 17Z" fill="#f9f9f7"/>
+            </svg>
+            <svg id="icon-off" class="hidden" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 2L3 7V12C3 17.55 6.84 22.74 12 24C17.16 22.74 21 17.55 21 12V7L12 2Z" stroke="currentColor" stroke-width="2"/>
+              <path d="M15 9L9 15M9 9L15 15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </span>
+        </button>
+      </section>
+
+      <!-- Legal Info -->
+      <section class="legal-section">
+        <div class="legal-badge">
+          <span class="legal-icon">&#9878;</span>
+          <span>MCDPA RECOGNIZED</span>
+        </div>
+        <p class="legal-text">
+          Global Privacy Control is legally binding under Minnesota Consumer Data Privacy Act
+          (effective July 31, 2025) and other state privacy laws.
+        </p>
+      </section>
+    </div>
+
+    <!-- Queue Tab Content -->
+    <div id="content-queue" class="tab-content">
+      <!-- Queue Status -->
+      <section class="queue-status">
+        <div id="queue-empty" class="queue-empty">
+          <p class="queue-empty-text">No opt-out session active</p>
+          <p class="queue-empty-hint">Use the web app to generate letters, then click "Export to Extension" to start an auto-fill session.</p>
+          <a href="https://shield.alexgallefrom.io/generator" target="_blank" class="queue-link">
+            OPEN LETTER GENERATOR →
+          </a>
+        </div>
+
+        <div id="queue-active" class="queue-active hidden">
+          <div class="queue-header">
+            <span class="queue-label">SESSION PROGRESS</span>
+            <span id="queue-progress" class="queue-progress">0 / 0</span>
+          </div>
+
+          <div class="queue-bar-container">
+            <div id="queue-bar" class="queue-bar" style="width: 0%"></div>
+          </div>
+
+          <!-- User Info Display -->
+          <div id="user-info-display" class="user-info-display">
+            <span class="user-info-label">FILLING AS:</span>
+            <span id="user-info-name" class="user-info-name">—</span>
+          </div>
+
+          <!-- Current Broker -->
+          <div id="current-broker" class="current-broker">
+            <span class="current-label">CURRENT</span>
+            <p id="current-broker-name" class="current-broker-name">—</p>
+            <div class="current-actions">
+              <button id="btn-open-portal" class="btn-action btn-primary">OPEN PORTAL</button>
+              <button id="btn-fill-form" class="btn-action btn-secondary">AUTO-FILL</button>
+            </div>
+            <div class="current-actions">
+              <button id="btn-mark-done" class="btn-action btn-success">MARK DONE</button>
+              <button id="btn-skip" class="btn-action btn-muted">SKIP</button>
+            </div>
+          </div>
+
+          <!-- Queue List -->
+          <div class="queue-list-container">
+            <span class="queue-list-label">REMAINING</span>
+            <ul id="queue-list" class="queue-list">
+              <!-- Populated by JS -->
+            </ul>
+          </div>
+
+          <!-- Session Controls -->
+          <div class="session-controls">
+            <button id="btn-clear-session" class="btn-clear">CLEAR SESSION</button>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Links -->
+    <footer class="footer">
+      <a href="https://global-privacy-control.glitch.me/" target="_blank" class="footer-link">
+        <span>TEST GPC</span>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M7 17L17 7M17 7H7M17 7V17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </a>
+    </footer>
+
+    <!-- Attribution -->
+    <div class="attribution">
+      <a href="https://alexgallefrom.io" target="_blank">alexgallefrom.io</a>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

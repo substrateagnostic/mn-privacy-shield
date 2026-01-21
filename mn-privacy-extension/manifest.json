@@ -1,0 +1,62 @@
+{
+  "manifest_version": 3,
+  "name": "MN Privacy Shield - Global Privacy Control",
+  "short_name": "MN Privacy Shield",
+  "version": "1.0.0",
+  "description": "Send Global Privacy Control (GPC) signals to websites, enforcing your Minnesota Consumer Data Privacy Act (MCDPA) opt-out rights automatically.",
+  "author": "Alex Galle-From",
+  "homepage_url": "https://alexgallefrom.io/projects/mn-privacy-shield",
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "permissions": [
+    "storage",
+    "scripting",
+    "declarativeNetRequest",
+    "activeTab",
+    "tabs"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    },
+    "default_title": "MN Privacy Shield"
+  },
+  "declarative_net_request": {
+    "rule_resources": [
+      {
+        "id": "gpc_header_rules",
+        "enabled": true,
+        "path": "rules.json"
+      }
+    ]
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["lib/field-matchers.js", "content-scripts/autofill.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["inject-gpc.js"],
+      "matches": ["<all_urls>"]
+    }
+  ],
+  "externally_connectable": {
+    "matches": ["https://shield.alexgallefrom.io/*", "http://localhost:3000/*"]
+  }
+}
