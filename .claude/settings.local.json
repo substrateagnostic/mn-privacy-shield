@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(powershell:*)",
+      "Bash(dir \"C:\\\\Users\\\\agall\" /AD /B)",
+      "Bash(mklink:*)",
+      "Bash(cmd //c \"mklink \"\"C:\\\\Users\\\\agall\\\\projects\\\\MN privacy MNCDP\\\\CLAUDE.md\"\" \"\"C:\\\\Users\\\\agall\\\\claude-memory\\\\global-CLAUDE.md\"\"\")",
+      "Bash(cmd //c 'mklink \"\"C:\\\\Users\\\\agall\\\\projects\\\\MN privacy MNCDP\\\\CLAUDE.md\"\" \"\"C:\\\\Users\\\\agall\\\\claude-memory\\\\global-CLAUDE.md\"\"')",
+      "Bash(ln:*)"
+    ]
+  }
+}

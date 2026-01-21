@@ -314,7 +314,15 @@ export default function Home() {
                 Manual install: Download, unzip, go to <code className="rounded bg-[var(--secondary)] px-1">chrome://extensions</code>, enable Developer Mode, click &quot;Load unpacked&quot;
               </p>
               <p className="mt-2 text-xs text-[var(--muted)]">
-                Chrome Web Store submission pending • Firefox version coming soon
+                Chrome Web Store submission pending •{' '}
+                <a
+                  href="https://github.com/substrateagnostic/mn-privacy-shield"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline hover:no-underline"
+                >
+                  View source on GitHub
+                </a>
               </p>
             </div>
           </div>
