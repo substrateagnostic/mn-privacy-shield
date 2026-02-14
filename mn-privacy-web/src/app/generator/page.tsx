@@ -1,10 +1,9 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import Link from 'next/link';
+import Header from '@/components/Header';
 import { UserInfo, RequestType, TrackedRequest, RESPONSE_DEADLINE_DAYS, DataBroker } from '@/lib/types';
-import { BROKERS } from '@/data/brokers';
-import { generateLetters, LetterContent, getLetterCount, hasStandaloneRequest } from '@/lib/templates';
+import { generateLetters, LetterContent, hasStandaloneRequest, STANDALONE_ONLY_REQUESTS, getRequestTypeContent } from '@/lib/templates';
 import { generatePDF, generateMergedPDF, downloadPDF, getLetterFilename } from '@/lib/pdf';
 import {
   saveRequest,
@@ -16,7 +15,7 @@ import {
   clearUserInfo,
   clearAllData,
 } from '@/lib/storage';
-import UserInfoForm from '@/components/UserInfoForm';
+import UserInfoForm, { validateUserInfo } from '@/components/UserInfoForm';
 import RequestTypeSelector from '@/components/RequestTypeSelector';
 import BrokerSelector from '@/components/BrokerSelector';
 import LetterPreview from '@/components/LetterPreview';
@@ -44,6 +43,7 @@ export default function GeneratorPage() {
   const [currentStep, setCurrentStep] = useState<Step>('info');
   const [userInfo, setUserInfo] = useState<UserInfo>(emptyUserInfo);
   const [selectedRequestTypes, setSelectedRequestTypes] = useState<RequestType[]>([]);
+  const [additionalInputs, setAdditionalInputs] = useState<Record<string, string>>({});
   const [selectedBrokers, setSelectedBrokers] = useState<DataBroker[]>([]);
   const [letters, setLetters] = useState<LetterContent[]>([]);
   const [previewIndex, setPreviewIndex] = useState(0);
@@ -52,6 +52,7 @@ export default function GeneratorPage() {
   const [rememberUserInfo, setRememberUserInfo] = useState(false);
   const [extensionDetected, setExtensionDetected] = useState(false);
   const [extensionExportStatus, setExtensionExportStatus] = useState<'idle' | 'exporting' | 'success' | 'error'>('idle');
+  const [showValidationErrors, setShowValidationErrors] = useState(false);
 
   // Load saved user info on mount and detect extension
   useEffect(() => {
@@ -106,18 +107,22 @@ export default function GeneratorPage() {
   // Generate letters when reaching preview step
   useEffect(() => {
     if (currentStep === 'preview' && selectedBrokers.length > 0 && selectedRequestTypes.length > 0) {
-      const generated = generateLetters(selectedBrokers, selectedRequestTypes, userInfo);
+      const generated = generateLetters(selectedBrokers, selectedRequestTypes, userInfo, additionalInputs as Record<RequestType, string>);
       setLetters(generated);
       setPreviewIndex(0);
     }
-  }, [currentStep, selectedBrokers, selectedRequestTypes, userInfo]);
+  }, [currentStep, selectedBrokers, selectedRequestTypes, userInfo, additionalInputs]);
 
   const canProceed = useCallback((): boolean => {
     switch (currentStep) {
       case 'info':
-        return !!(userInfo.name && userInfo.address && userInfo.city && userInfo.state && userInfo.zip && userInfo.email);
-      case 'requests':
-        return selectedRequestTypes.length > 0;
+        return Object.keys(validateUserInfo(userInfo)).length === 0;
+      case 'requests': {
+        if (selectedRequestTypes.length === 0) return false;
+        // Ensure additional inputs are provided for standalone request types
+        const standaloneSelected = selectedRequestTypes.filter(rt => STANDALONE_ONLY_REQUESTS.includes(rt));
+        return standaloneSelected.every(rt => additionalInputs[rt]?.trim());
+      }
       case 'companies':
         return selectedBrokers.length > 0;
       case 'preview':
@@ -125,7 +130,7 @@ export default function GeneratorPage() {
       default:
         return false;
     }
-  }, [currentStep, userInfo, selectedRequestTypes, selectedBrokers, letters]);
+  }, [currentStep, userInfo, selectedRequestTypes, selectedBrokers, letters, additionalInputs]);
 
   const goToStep = (step: Step) => {
     const stepIndex = STEPS.findIndex(s => s.id === step);
@@ -139,7 +144,12 @@ export default function GeneratorPage() {
 
   const nextStep = () => {
     const currentIndex = STEPS.findIndex(s => s.id === currentStep);
-    if (currentIndex < STEPS.length - 1 && canProceed()) {
+    if (!canProceed()) {
+      setShowValidationErrors(true);
+      return;
+    }
+    if (currentIndex < STEPS.length - 1) {
+      setShowValidationErrors(false);
       setCurrentStep(STEPS[currentIndex + 1].id);
     }
   };
@@ -286,58 +296,46 @@ export default function GeneratorPage() {
   };
 
   const currentStepIndex = STEPS.findIndex(s => s.id === currentStep);
-  const letterCount = getLetterCount(selectedBrokers.length, selectedRequestTypes);
 
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
-      {/* Header */}
-      <header className="border-b border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
-        <div className="mx-auto flex max-w-4xl items-center justify-between px-4 py-4">
-          <Link href="/" className="text-xl font-bold text-zinc-900 dark:text-zinc-100">
-            MN Privacy Shield
-          </Link>
-          <Link
-            href="/tracker"
-            className="text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
-          >
-            View Tracker →
-          </Link>
-        </div>
-      </header>
+    <div className="min-h-screen bg-[var(--background)]">
+      <Header />
 
       <main className="mx-auto max-w-4xl px-4 py-8">
         {/* Progress Steps */}
-        <nav className="mb-8">
+        <nav className="mb-8" aria-label="Form progress">
           <ol className="flex items-center justify-between">
             {STEPS.map((step, index) => (
               <li key={step.id} className="flex items-center">
                 <button
                   onClick={() => goToStep(step.id)}
+                  aria-current={index === currentStepIndex ? 'step' : undefined}
+                  aria-label={`Step ${index + 1}: ${step.label}${index < currentStepIndex ? ' (completed)' : ''}`}
                   className={`flex items-center gap-2 ${
                     index <= currentStepIndex
-                      ? 'text-blue-600 dark:text-blue-400'
-                      : 'text-zinc-400 dark:text-zinc-600'
+                      ? 'text-[var(--accent)]'
+                      : 'text-[var(--muted)]'
                   }`}
                 >
                   <span
-                    className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-medium ${
+                    className={`flex h-8 w-8 items-center justify-center font-mono text-sm font-bold ${
                       index < currentStepIndex
-                        ? 'bg-blue-600 text-white'
+                        ? 'bg-[var(--accent)] text-[var(--accent-foreground)]'
                         : index === currentStepIndex
-                        ? 'border-2 border-blue-600 text-blue-600 dark:border-blue-400 dark:text-blue-400'
-                        : 'border-2 border-zinc-300 dark:border-zinc-600'
+                        ? 'border-2 border-[var(--accent)] text-[var(--accent)]'
+                        : 'border-2 border-[var(--secondary)] text-[var(--muted)]'
                     }`}
                   >
                     {index < currentStepIndex ? '✓' : index + 1}
                   </span>
-                  <span className="hidden font-medium sm:inline">{step.label}</span>
+                  <span className="hidden font-mono text-xs font-semibold uppercase tracking-wide sm:inline">{step.label}</span>
                 </button>
                 {index < STEPS.length - 1 && (
                   <div
                     className={`mx-4 h-0.5 w-8 sm:w-16 ${
                       index < currentStepIndex
-                        ? 'bg-blue-600 dark:bg-blue-400'
-                        : 'bg-zinc-300 dark:bg-zinc-600'
+                        ? 'bg-[var(--accent)]'
+                        : 'bg-[var(--secondary)]'
                     }`}
                   />
                 )}
@@ -347,48 +345,48 @@ export default function GeneratorPage() {
         </nav>
 
         {/* Step Content */}
-        <div className="rounded-xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
+        <div className="card p-6">
           {currentStep === 'info' && (
             <div className="space-y-6">
               {/* AG Guidance */}
-              <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 dark:border-amber-800 dark:bg-amber-950/30">
-                <h4 className="font-semibold text-amber-900 dark:text-amber-100">
-                  Before You Begin
-                </h4>
-                <ul className="mt-2 space-y-1 text-sm text-amber-800 dark:text-amber-200">
-                  <li>• <strong>One person per request.</strong> Submit separate requests for yourself and your minor children.</li>
-                  <li>• <strong>Only fill in what you're comfortable sharing.</strong> More info helps companies find your data, but you decide what to provide.</li>
-                  <li>• <strong>Keep a copy.</strong> Save your submissions in case you need to file a complaint later.</li>
+              <div className="border-2 border-[var(--warning)] bg-[var(--warning-bg)] p-4">
+                <p className="font-mono text-xs font-semibold uppercase tracking-widest text-[var(--warning)]">
+                  [BEFORE YOU BEGIN]
+                </p>
+                <ul className="mt-2 space-y-1 text-sm text-[var(--foreground)]">
+                  <li className="flex gap-2"><span className="font-mono">—</span><span><strong>One person per request.</strong> Submit separate requests for yourself and your minor children.</span></li>
+                  <li className="flex gap-2"><span className="font-mono">—</span><span><strong>Only fill in what you&apos;re comfortable sharing.</strong> More info helps companies find your data, but you decide what to provide.</span></li>
+                  <li className="flex gap-2"><span className="font-mono">—</span><span><strong>Keep a copy.</strong> Save your submissions in case you need to file a complaint later.</span></li>
                 </ul>
               </div>
 
-              <UserInfoForm userInfo={userInfo} onChange={setUserInfo} />
+              <UserInfoForm userInfo={userInfo} onChange={setUserInfo} showErrors={showValidationErrors} />
 
-              <div className="rounded-lg border border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-700 dark:bg-zinc-800/50">
-                <h4 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
-                  Privacy Controls
-                </h4>
-                <label className="mt-3 flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-300">
+              <div className="border-2 border-[var(--border)] bg-[var(--secondary)] p-4">
+                <p className="font-mono text-xs font-semibold uppercase tracking-widest text-[var(--muted)]">
+                  [PRIVACY CONTROLS]
+                </p>
+                <label className="mt-3 flex items-center gap-2 text-sm text-[var(--foreground)]">
                   <input
                     type="checkbox"
                     checked={rememberUserInfo}
                     onChange={(e) => handleRememberToggle(e.target.checked)}
-                    className="h-4 w-4 rounded border-zinc-300 text-blue-600"
+                    className="h-4 w-4"
                   />
                   Remember my info on this device
                 </label>
-                <p className="mt-2 text-xs text-zinc-500 dark:text-zinc-400">
+                <p className="mt-2 text-xs text-[var(--muted)]">
                   When enabled, your info is stored locally in this browser and never sent to any server.
                 </p>
                 <div className="mt-4">
                   <button
                     type="button"
                     onClick={handleClearAllData}
-                    className="rounded-lg border border-red-300 px-3 py-1.5 text-xs font-semibold text-red-700 hover:bg-red-50 dark:border-red-600 dark:text-red-300 dark:hover:bg-red-950/30"
+                    className="border-2 border-[var(--error)] px-3 py-1.5 font-mono text-xs font-semibold uppercase tracking-wide text-[var(--error)] transition-colors hover:bg-[var(--error-bg)]"
                   >
-                    Clear local data
+                    Clear Local Data
                   </button>
-                  <p className="mt-2 text-xs text-zinc-500 dark:text-zinc-400">
+                  <p className="mt-2 text-xs text-[var(--muted)]">
                     Clears saved requests and any stored info from this browser.
                   </p>
                 </div>
@@ -397,11 +395,45 @@ export default function GeneratorPage() {
           )}
 
           {currentStep === 'requests' && (
-            <RequestTypeSelector
-              selected={selectedRequestTypes}
-              onChange={setSelectedRequestTypes}
-              brokerCount={selectedBrokers.length}
-            />
+            <div className="space-y-6">
+              <RequestTypeSelector
+                selected={selectedRequestTypes}
+                onChange={setSelectedRequestTypes}
+                brokerCount={selectedBrokers.length}
+              />
+
+              {/* Additional input fields for standalone request types */}
+              {selectedRequestTypes.filter(rt => STANDALONE_ONLY_REQUESTS.includes(rt)).map(rt => {
+                const content = getRequestTypeContent(rt);
+                return (
+                  <div key={rt} className="border-2 border-[var(--border)] bg-[var(--card)] p-4">
+                    <label
+                      htmlFor={`additional-input-${rt}`}
+                      className="block font-mono text-xs font-semibold uppercase tracking-wider text-[var(--accent)]"
+                    >
+                      {content.inputPrompt}
+                    </label>
+                    <textarea
+                      id={`additional-input-${rt}`}
+                      value={additionalInputs[rt] || ''}
+                      onChange={(e) => setAdditionalInputs(prev => ({ ...prev, [rt]: e.target.value }))}
+                      rows={4}
+                      required
+                      className="mt-2 block w-full border-2 border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-[var(--foreground)] focus:border-[var(--accent)] focus:outline-none"
+                      placeholder={rt === 'correction'
+                        ? 'e.g., My current address is listed as 123 Old Street, but it should be 456 New Avenue...'
+                        : 'e.g., I was denied credit/insurance based on automated profiling on [date]...'
+                      }
+                    />
+                    {!additionalInputs[rt]?.trim() && (
+                      <p className="mt-1 text-xs text-[var(--error)]">
+                        This information is required to generate your letter.
+                      </p>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
           )}
 
           {currentStep === 'companies' && (
@@ -412,15 +444,15 @@ export default function GeneratorPage() {
               />
 
               {/* Submission guidance */}
-              <div className="rounded-lg border border-blue-200 bg-blue-50 p-4 dark:border-blue-800 dark:bg-blue-950/30">
-                <h4 className="font-semibold text-blue-900 dark:text-blue-100">
-                  Where to Submit
-                </h4>
-                <p className="mt-2 text-sm text-blue-800 dark:text-blue-200">
-                  Controllers are required to have a privacy page on their website with submission instructions (usually an online portal or email address). After downloading your letters, visit each company's privacy page to submit.
+              <div className="border-2 border-[var(--accent)] bg-[var(--accent)]/10 p-4">
+                <p className="font-mono text-xs font-semibold uppercase tracking-widest text-[var(--accent)]">
+                  [WHERE TO SUBMIT]
                 </p>
-                <p className="mt-2 text-sm text-blue-800 dark:text-blue-200">
-                  We'll show you the submission links for each company in the preview step.
+                <p className="mt-2 text-sm text-[var(--foreground)]">
+                  Controllers are required to have a privacy page on their website with submission instructions (usually an online portal or email address). After downloading your letters, visit each company&apos;s privacy page to submit.
+                </p>
+                <p className="mt-2 text-sm text-[var(--muted)]">
+                  We&apos;ll show you the submission links for each company in the preview step.
                 </p>
               </div>
             </div>
@@ -429,17 +461,17 @@ export default function GeneratorPage() {
           {currentStep === 'preview' && letters.length > 0 && (
             <div className="space-y-6">
               <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
+                <h3 className="text-lg font-bold uppercase tracking-tight text-[var(--foreground)]">
                   Preview Letters
                 </h3>
-                <span className="text-sm text-zinc-500">
+                <span className="font-mono text-xs text-[var(--muted)]">
                   {previewIndex + 1} of {letters.length}
                 </span>
               </div>
 
               {/* Letter count explanation */}
               {letters.length !== selectedBrokers.length && (
-                <div className="rounded-lg bg-amber-50 p-3 text-sm text-amber-800 dark:bg-amber-950/30 dark:text-amber-200">
+                <div className="border-2 border-[var(--warning)] bg-[var(--warning-bg)] p-3 text-sm text-[var(--foreground)]">
                   You selected request types that require separate letters. {letters.length} letters will be generated for {selectedBrokers.length} companies.
                 </div>
               )}
@@ -449,14 +481,14 @@ export default function GeneratorPage() {
                 <button
                   onClick={() => setPreviewIndex(Math.max(0, previewIndex - 1))}
                   disabled={previewIndex === 0}
-                  className="rounded-lg border border-zinc-300 px-3 py-1.5 text-sm disabled:opacity-50 dark:border-zinc-600"
+                  className="btn-secondary px-3 py-1.5 text-xs disabled:opacity-50"
                 >
-                  ← Previous
+                  ← Prev
                 </button>
                 <select
                   value={previewIndex}
                   onChange={(e) => setPreviewIndex(Number(e.target.value))}
-                  className="flex-1 rounded-lg border border-zinc-300 px-3 py-1.5 text-sm dark:border-zinc-600 dark:bg-zinc-800"
+                  className="flex-1 border-2 border-[var(--border)] bg-[var(--background)] px-3 py-1.5 text-sm"
                 >
                   {letters.map((letter, i) => (
                     <option key={i} value={i}>
@@ -467,7 +499,7 @@ export default function GeneratorPage() {
                 <button
                   onClick={() => setPreviewIndex(Math.min(letters.length - 1, previewIndex + 1))}
                   disabled={previewIndex === letters.length - 1}
-                  className="rounded-lg border border-zinc-300 px-3 py-1.5 text-sm disabled:opacity-50 dark:border-zinc-600"
+                  className="btn-secondary px-3 py-1.5 text-xs disabled:opacity-50"
                 >
                   Next →
                 </button>
@@ -479,15 +511,15 @@ export default function GeneratorPage() {
               </div>
 
               {/* Download options */}
-              <div className="space-y-4 rounded-lg bg-zinc-50 p-4 dark:bg-zinc-800/50">
+              <div className="border-2 border-[var(--border)] bg-[var(--secondary)] p-4 space-y-4">
                 <label className="flex items-center gap-2">
                   <input
                     type="checkbox"
                     checked={trackRequests}
                     onChange={(e) => setTrackRequests(e.target.checked)}
-                    className="h-4 w-4 rounded border-zinc-300 text-blue-600"
+                    className="h-4 w-4"
                   />
-                  <span className="text-sm text-zinc-700 dark:text-zinc-300">
+                  <span className="text-sm text-[var(--foreground)]">
                     Add to deadline tracker (track 45-day response deadlines)
                   </span>
                 </label>
@@ -496,37 +528,38 @@ export default function GeneratorPage() {
                   <button
                     onClick={() => downloadSingleLetter(previewIndex)}
                     disabled={isGenerating}
-                    className="flex-1 rounded-lg border border-zinc-300 bg-white px-4 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-50 disabled:opacity-50 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700"
+                    className="btn-secondary flex-1 px-4 py-2 text-xs disabled:opacity-50"
                   >
                     Download This Letter
                   </button>
                   <button
                     onClick={downloadAllLetters}
                     disabled={isGenerating}
-                    className="flex-1 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+                    className="btn-primary flex-1 px-4 py-2 disabled:opacity-50"
                   >
                     {isGenerating ? 'Generating...' : `Download All ${letters.length} Letters`}
                   </button>
                 </div>
 
-                <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                  <strong>Remember:</strong> After downloading, submit each letter via the company's privacy portal or email. Keep copies for your records.
+                <p className="text-xs text-[var(--muted)]">
+                  <strong>Remember:</strong> After downloading, submit each letter via the company&apos;s privacy portal or email. Keep copies for your records.
                 </p>
               </div>
 
               {/* Extension Auto-Fill Export */}
-              <div className="rounded-lg border border-green-200 bg-green-50 p-4 dark:border-green-800 dark:bg-green-950/30">
-                <h4 className="font-semibold text-green-900 dark:text-green-100">
-                  Browser Extension Auto-Fill
-                </h4>
-                <p className="mt-2 text-sm text-green-800 dark:text-green-200">
+              <div className="border-2 border-[var(--success)] bg-[var(--success-bg)] p-4">
+                <p className="font-mono text-xs font-semibold uppercase tracking-widest text-[var(--success)]">
+                  [BROWSER EXTENSION]
+                </p>
+                <p className="mt-2 text-sm text-[var(--foreground)]">
                   Have the MN Privacy Shield browser extension installed? Export your session to auto-fill opt-out forms as you visit each portal.
                 </p>
                 <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center">
                   <button
                     onClick={exportToExtension}
                     disabled={extensionExportStatus === 'exporting' || selectedBrokers.length === 0}
-                    className="rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700 disabled:opacity-50"
+                    className="btn-primary px-4 py-2 disabled:opacity-50"
+                    style={{ background: 'var(--success)' }}
                   >
                     {extensionExportStatus === 'exporting' ? 'Exporting...' :
                      extensionExportStatus === 'success' ? '✓ Exported!' :
@@ -535,16 +568,16 @@ export default function GeneratorPage() {
                   </button>
                   {!extensionDetected && (
                     <a
-                      href="https://github.com/alexgallefrom/mn-privacy-shield"
+                      href="https://github.com/substrateagnostic/mn-privacy-shield"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-sm text-green-700 underline dark:text-green-300"
+                      className="text-sm text-[var(--success)] underline"
                     >
                       Get the extension
                     </a>
                   )}
                 </div>
-                <p className="mt-2 text-xs text-green-700 dark:text-green-400">
+                <p className="mt-2 text-xs text-[var(--success)]">
                   The extension will queue each company. Open the popup to step through portals and auto-fill forms with your info.
                 </p>
               </div>
@@ -557,7 +590,7 @@ export default function GeneratorPage() {
           <button
             onClick={prevStep}
             disabled={currentStepIndex === 0}
-            className="rounded-lg border border-zinc-300 px-6 py-2 font-medium text-zinc-700 hover:bg-zinc-50 disabled:opacity-50 dark:border-zinc-600 dark:text-zinc-300 dark:hover:bg-zinc-800"
+            className="btn-secondary px-6 py-2 disabled:opacity-50"
           >
             Back
           </button>
@@ -565,7 +598,7 @@ export default function GeneratorPage() {
             <button
               onClick={nextStep}
               disabled={!canProceed()}
-              className="rounded-lg bg-blue-600 px-6 py-2 font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+              className="btn-primary px-6 py-2 disabled:opacity-50"
             >
               Continue
             </button>

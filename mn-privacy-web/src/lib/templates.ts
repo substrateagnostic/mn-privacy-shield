@@ -1,4 +1,4 @@
-import { RequestType, UserInfo, REQUEST_TYPES, DataBroker } from './types';
+import { RequestType, UserInfo, DataBroker } from './types';
 
 // Letter content generation based on MN AG templates
 // Reference: https://ag.state.mn.us/Data-Privacy/Consumer/Letters/
@@ -51,7 +51,7 @@ interface RequestTypeContent {
   inputPrompt?: string;
 }
 
-function getRequestTypeContent(requestType: RequestType): RequestTypeContent {
+export function getRequestTypeContent(requestType: RequestType): RequestTypeContent {
   switch (requestType) {
     case 'right-to-know':
       return {

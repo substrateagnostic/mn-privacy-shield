@@ -1,47 +1,12 @@
+'use client';
+
 import Link from 'next/link';
+import Header from '@/components/Header';
 
 export default function Home() {
   return (
     <div className="min-h-screen bg-[var(--background)]">
-      {/* AG Recommendation Banner */}
-      <div className="border-b-2 border-[var(--accent)] bg-[var(--accent)] px-4 py-3 text-center">
-        <p className="text-sm font-medium text-[var(--accent-foreground)]">
-          Based on{' '}
-          <a
-            href="https://www.ag.state.mn.us/Data-Privacy/Consumer/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="underline hover:no-underline"
-          >
-            MN Attorney General Ellison&apos;s guidance
-          </a>
-          {' '}for exercising your data privacy rights under the MCDPA
-        </p>
-      </div>
-
-      {/* Header */}
-      <header className="border-b-2 border-[var(--border)] bg-[var(--card)]">
-        <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-4">
-          <Link href="/" className="flex items-center gap-2">
-            <span className="font-mono text-xs font-bold uppercase tracking-wider text-[var(--accent)]">[SHIELD]</span>
-            <span className="text-lg font-black uppercase tracking-tight">MN Privacy Shield</span>
-          </Link>
-          <nav className="flex gap-6">
-            <Link
-              href="/generator"
-              className="font-mono text-xs font-semibold uppercase tracking-wide text-[var(--muted)] transition-colors hover:text-[var(--foreground)]"
-            >
-              Generator
-            </Link>
-            <Link
-              href="/tracker"
-              className="font-mono text-xs font-semibold uppercase tracking-wide text-[var(--muted)] transition-colors hover:text-[var(--foreground)]"
-            >
-              Tracker
-            </Link>
-          </nav>
-        </div>
-      </header>
+      <Header />
 
       <main>
         {/* Hero */}
@@ -73,7 +38,7 @@ export default function Home() {
             <div className="mt-8 flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm text-[var(--muted)]">
               <span>No account needed</span>
               <span>•</span>
-              <span>545+ companies</span>
+              <span>555+ companies</span>
               <span>•</span>
               <span>Official AG templates</span>
             </div>
@@ -180,7 +145,7 @@ export default function Home() {
                 {
                   step: '2',
                   title: 'Pick Companies',
-                  description: 'Choose from 545+ data brokers. We recommend starting with "people search" sites.',
+                  description: 'Choose from 555+ data brokers. We recommend starting with "people search" sites.',
                   icon: (
                     <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
@@ -390,7 +355,7 @@ export default function Home() {
               Ready to Exercise Your Rights?
             </h2>
             <p className="mt-4 text-lg text-[var(--muted)]">
-              Generate request letters for 545+ data brokers in minutes. Free and open source.
+              Generate request letters for 555+ data brokers in minutes. Free and open source.
             </p>
             <Link
               href="/generator"

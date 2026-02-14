@@ -128,4 +128,4 @@ export type RequestStatus =
 // Deadline calculations
 export const RESPONSE_DEADLINE_DAYS = 45;
 export const CURE_PERIOD_DAYS = 30;
-export const CURE_PERIOD_END = new Date('2026-01-31');
+

@@ -1,7 +1,8 @@
-// Auto-generated from CA CPPA Data Broker Registry
-// Source: https://cppa.ca.gov/data_broker_registry/registry.csv
+// Data broker registry
+// Base: CA CPPA Data Broker Registry (https://cppa.ca.gov/data_broker_registry/registry.csv)
 // Generated: 2026-01-20
-// Total brokers: 545
+// MN-headquartered companies added manually
+// Total brokers: 557
 
 import { DataBroker, BrokerCategory } from '@/lib/types';
 
@@ -4453,6 +4454,127 @@ export const BROKERS: DataBroker[] = [
     website: 'https://www.rorpartners.com/',
     optOutUrl: 'https://www.rorpartners.com/privacy-policy',
     category: 'other' as BrokerCategory,
+  },
+  // Minnesota-headquartered companies
+  {
+    id: 'mn-1',
+    name: 'Target Corporation',
+    email: 'privacy.request@target.com',
+    website: 'https://www.target.com',
+    optOutUrl: 'https://www.target.com/c/target-privacy-policy/-/N-4sr7p',
+    city: 'Minneapolis',
+    state: 'MN',
+    category: 'other' as BrokerCategory,
+  },
+  {
+    id: 'mn-2',
+    name: 'UnitedHealth Group',
+    email: 'uhg_privacy_office@uhg.com',
+    website: 'https://www.unitedhealthgroup.com',
+    optOutUrl: 'https://www.unitedhealthgroup.com/privacy.html',
+    city: 'Minnetonka',
+    state: 'MN',
+    category: 'financial' as BrokerCategory,
+  },
+  {
+    id: 'mn-3',
+    name: '3M Company',
+    email: 'privacy_office@mmm.com',
+    website: 'https://www.3m.com',
+    optOutUrl: 'https://www.3m.com/3M/en_US/company-us/privacy-policy/',
+    city: 'St. Paul',
+    state: 'MN',
+    category: 'other' as BrokerCategory,
+  },
+  {
+    id: 'mn-4',
+    name: 'Best Buy',
+    email: 'PrivacyManager@bestbuy.com',
+    website: 'https://www.bestbuy.com',
+    optOutUrl: 'https://www.bestbuy.com/site/privacy-policy/state-privacy-rights/pcmcat204400050063.c?id=pcmcat204400050063',
+    city: 'Richfield',
+    state: 'MN',
+    category: 'other' as BrokerCategory,
+  },
+  {
+    id: 'mn-5',
+    name: 'US Bancorp (U.S. Bank)',
+    email: 'privacy@usbank.com',
+    website: 'https://www.usbank.com',
+    optOutUrl: 'https://www.usbank.com/about-us-bank/privacy/state-personal-information-program.html',
+    city: 'Minneapolis',
+    state: 'MN',
+    category: 'financial' as BrokerCategory,
+  },
+  {
+    id: 'mn-6',
+    name: 'Medtronic',
+    email: 'rs.globaldataprivacy@medtronic.com',
+    website: 'https://www.medtronic.com',
+    optOutUrl: 'https://www.medtronic.com/us-en/privacy-statement/personal-data-request.html',
+    city: 'Minneapolis',
+    state: 'MN',
+    category: 'other' as BrokerCategory,
+  },
+  {
+    id: 'mn-7',
+    name: 'General Mills',
+    email: 'privacy@genmills.com',
+    website: 'https://www.generalmills.com',
+    optOutUrl: 'https://privacy.generalmills.com/',
+    city: 'Minneapolis',
+    state: 'MN',
+    category: 'other' as BrokerCategory,
+  },
+  {
+    id: 'mn-8',
+    name: 'CHS Inc.',
+    email: 'privacy@chsinc.com',
+    website: 'https://www.chsinc.com',
+    optOutUrl: 'https://www.chsinc.com/en/privacy',
+    city: 'Inver Grove Heights',
+    state: 'MN',
+    category: 'other' as BrokerCategory,
+  },
+  {
+    id: 'mn-9',
+    name: 'Hormel Foods',
+    email: 'privacy@hormel.com',
+    website: 'https://www.hormelfoods.com',
+    optOutUrl: 'https://www.hormelfoods.com/privacy-policy/supplemental-u-s-privacy-notice/',
+    city: 'Austin',
+    state: 'MN',
+    category: 'other' as BrokerCategory,
+  },
+  {
+    id: 'mn-10',
+    name: "Land O'Lakes",
+    email: 'Privacy@landolakes.com',
+    website: 'https://www.landolakes.com',
+    optOutUrl: 'https://www.landolakesinc.com/privacy-form/',
+    city: 'Arden Hills',
+    state: 'MN',
+    category: 'other' as BrokerCategory,
+  },
+  {
+    id: 'mn-11',
+    name: 'Xcel Energy',
+    email: 'datarequest@xcelenergy.com',
+    website: 'https://www.xcelenergy.com',
+    optOutUrl: 'https://my.xcelenergy.com/s/privacy/data-access',
+    city: 'Minneapolis',
+    state: 'MN',
+    category: 'other' as BrokerCategory,
+  },
+  {
+    id: 'mn-12',
+    name: 'Securian Financial',
+    email: 'privacy@securian.com',
+    website: 'https://www.securian.com',
+    optOutUrl: 'https://www.securian.com/contact-us/consumer-privacy-request.html',
+    city: 'St. Paul',
+    state: 'MN',
+    category: 'financial' as BrokerCategory,
   },
 ];
 

@@ -71,22 +71,22 @@ export default function BrokerSelector({ selected, onChange }: BrokerSelectorPro
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
+        <h3 className="text-lg font-bold uppercase tracking-tight text-[var(--foreground)]">
           Select Companies
         </h3>
         <div className="space-x-2">
           <button
             type="button"
             onClick={selectAllVisible}
-            className="text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+            className="font-mono text-xs font-semibold uppercase tracking-wide text-[var(--accent)] hover:underline"
           >
             Select All Visible
           </button>
-          <span className="text-zinc-400">|</span>
+          <span className="text-[var(--muted)]">|</span>
           <button
             type="button"
             onClick={clearAll}
-            className="text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+            className="font-mono text-xs font-semibold uppercase tracking-wide text-[var(--accent)] hover:underline"
           >
             Clear
           </button>
@@ -96,19 +96,23 @@ export default function BrokerSelector({ selected, onChange }: BrokerSelectorPro
       {/* Search and Filter */}
       <div className="flex flex-col gap-3 sm:flex-row">
         <div className="flex-1">
+          <label htmlFor="broker-search" className="sr-only">Search companies</label>
           <input
-            type="text"
+            type="search"
+            id="broker-search"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search companies..."
-            className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-zinc-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100"
+            className="w-full border-2 border-[var(--border)] bg-[var(--background)] px-3 py-2 text-[var(--foreground)] focus:border-[var(--accent)] focus:outline-none"
           />
         </div>
         <div>
+          <label htmlFor="broker-category" className="sr-only">Filter by category</label>
           <select
+            id="broker-category"
             value={categoryFilter}
             onChange={(e) => setCategoryFilter(e.target.value as BrokerCategory | 'all')}
-            className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-zinc-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 sm:w-auto"
+            className="w-full border-2 border-[var(--border)] bg-[var(--background)] px-3 py-2 text-[var(--foreground)] sm:w-auto"
           >
             <option value="all">All Categories</option>
             {categories.map(cat => (
@@ -121,22 +125,27 @@ export default function BrokerSelector({ selected, onChange }: BrokerSelectorPro
       </div>
 
       {/* Selected count */}
-      <div className="flex items-center justify-between rounded-lg bg-zinc-100 px-4 py-2 dark:bg-zinc-800">
-        <span className="text-sm text-zinc-600 dark:text-zinc-400">
-          <strong className="text-zinc-900 dark:text-zinc-100">{selected.length}</strong> companies selected
+      <div className="flex items-center justify-between border-2 border-[var(--border)] bg-[var(--secondary)] px-4 py-2" aria-live="polite">
+        <span className="font-mono text-xs text-[var(--foreground)]">
+          <strong>{selected.length}</strong> companies selected
         </span>
-        <span className="text-sm text-zinc-500">
+        <span className="font-mono text-xs text-[var(--muted)]">
           {filteredBrokers.length} shown
         </span>
       </div>
 
       {/* Broker list */}
-      <div className="max-h-96 space-y-4 overflow-y-auto rounded-lg border border-zinc-200 p-4 dark:border-zinc-700">
+      <div
+        className="max-h-96 space-y-4 overflow-y-auto border-2 border-[var(--border)] p-4"
+        role="list"
+        aria-label="Data broker companies"
+        tabIndex={0}
+      >
         {Object.entries(groupedBrokers).map(([category, brokers]) => (
-          <div key={category}>
-            <h4 className="mb-2 flex items-center gap-2 text-sm font-semibold text-zinc-700 dark:text-zinc-300">
+          <div key={category} role="group" aria-label={CATEGORY_NAMES[category as BrokerCategory] || category}>
+            <h4 className="mb-2 flex items-center gap-2 font-mono text-xs font-semibold uppercase tracking-widest text-[var(--muted)]">
               {CATEGORY_NAMES[category as BrokerCategory] || category}
-              <span className="rounded-full bg-zinc-200 px-2 py-0.5 text-xs font-normal dark:bg-zinc-700">
+              <span className="border border-[var(--secondary)] bg-[var(--secondary)] px-2 py-0.5 font-mono text-[10px] font-normal">
                 {brokers.length}
               </span>
             </h4>
@@ -151,37 +160,39 @@ export default function BrokerSelector({ selected, onChange }: BrokerSelectorPro
                 return (
                   <label
                     key={broker.id}
-                    className={`flex cursor-pointer items-center gap-3 rounded-md border px-3 py-2 transition-colors ${
+                    role="listitem"
+                    className={`flex cursor-pointer items-center gap-3 border-2 px-3 py-2 transition-colors ${
                       selectedIds.has(broker.id)
-                        ? 'border-blue-500 bg-blue-50 dark:border-blue-400 dark:bg-blue-950/30'
-                        : 'border-transparent hover:bg-zinc-50 dark:hover:bg-zinc-800/50'
+                        ? 'border-[var(--accent)] bg-[var(--accent)]/5'
+                        : 'border-transparent hover:bg-[var(--secondary)]'
                     }`}
                   >
                     <input
                       type="checkbox"
                       checked={selectedIds.has(broker.id)}
                       onChange={() => toggleBroker(broker)}
-                      className="h-4 w-4 rounded border-zinc-300 text-blue-600 focus:ring-blue-500"
+                      aria-label={`Select ${broker.name}`}
+                      className="h-4 w-4"
                     />
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2">
-                        <span className="truncate font-medium text-zinc-900 dark:text-zinc-100">
+                        <span className="truncate font-medium text-[var(--foreground)]">
                           {broker.name}
                         </span>
                         {broker.collectsGeolocation && (
-                          <span className="shrink-0 rounded bg-orange-100 px-1.5 py-0.5 text-xs text-orange-700 dark:bg-orange-900/30 dark:text-orange-400">
+                          <span className="tag status-warning shrink-0">
                             Location
                           </span>
                         )}
                       </div>
-                      <div className="flex items-center gap-2 text-sm text-zinc-500 dark:text-zinc-400">
+                      <div className="flex items-center gap-2 text-sm text-[var(--muted)]">
                         {safeWebsite ? (
                           <a
                             href={safeWebsite}
                             target="_blank"
                             rel="noopener noreferrer"
                             onClick={(e) => e.stopPropagation()}
-                            className="truncate hover:text-blue-600 dark:hover:text-blue-400"
+                            className="truncate hover:text-[var(--accent)]"
                           >
                             {websiteLabel}
                           </a>
@@ -196,7 +207,7 @@ export default function BrokerSelector({ selected, onChange }: BrokerSelectorPro
                               target="_blank"
                               rel="noopener noreferrer"
                               onClick={(e) => e.stopPropagation()}
-                              className="shrink-0 text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+                              className="shrink-0 text-[var(--accent)] hover:underline"
                             >
                               Opt-out
                             </a>
@@ -212,7 +223,7 @@ export default function BrokerSelector({ selected, onChange }: BrokerSelectorPro
         ))}
 
         {filteredBrokers.length === 0 && (
-          <p className="py-8 text-center text-zinc-500 dark:text-zinc-400">
+          <p className="py-8 text-center text-[var(--muted)]">
             No companies found matching your search.
           </p>
         )}

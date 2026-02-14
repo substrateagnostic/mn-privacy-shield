@@ -19,18 +19,18 @@ export default function LetterPreview({ letter, showSubmissionInfo = true }: Let
         );
       }
       if (line === '---') {
-        return <hr key={i} className="my-2 border-zinc-300 dark:border-zinc-600" />;
+        return <hr key={i} className="my-2 border-[var(--secondary)]" />;
       }
       if (line.startsWith('THIS REQUEST INCLUDES:')) {
         return (
-          <p key={i} className="font-bold text-blue-700 dark:text-blue-400">
+          <p key={i} className="font-bold text-[var(--accent)]">
             {line}
           </p>
         );
       }
       if (line.startsWith('LEGAL NOTICE:')) {
         return (
-          <p key={i} className="font-semibold text-zinc-700 dark:text-zinc-300">
+          <p key={i} className="font-semibold text-[var(--foreground)]">
             {line}
           </p>
         );
@@ -46,23 +46,23 @@ export default function LetterPreview({ letter, showSubmissionInfo = true }: Let
     <div className="space-y-4">
       {/* Submission Info Card */}
       {showSubmissionInfo && (
-        <div className="rounded-lg border border-blue-200 bg-blue-50 p-4 dark:border-blue-800 dark:bg-blue-950/30">
-          <h4 className="font-semibold text-blue-900 dark:text-blue-100">
-            How to Submit This Request
-          </h4>
-          <p className="mt-2 text-sm text-blue-800 dark:text-blue-200">
+        <div className="border-2 border-[var(--accent)] bg-[var(--accent)]/10 p-4">
+          <p className="font-mono text-xs font-semibold uppercase tracking-widest text-[var(--accent)]">
+            [HOW TO SUBMIT]
+          </p>
+          <p className="mt-2 text-sm text-[var(--foreground)]">
             Companies must provide a privacy page with submission instructions (usually a web portal or email).
           </p>
 
           <div className="mt-3 space-y-2 text-sm">
             {letter.optOutUrl && (
               <div className="flex items-start gap-2">
-                <span className="font-medium text-blue-700 dark:text-blue-300">Privacy Portal:</span>
+                <span className="font-mono text-xs font-semibold text-[var(--muted)]">PORTAL:</span>
                 <a
                   href={letter.optOutUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-blue-600 underline hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-200"
+                  className="text-[var(--accent)] underline hover:no-underline"
                 >
                   {letter.optOutUrl}
                 </a>
@@ -71,10 +71,10 @@ export default function LetterPreview({ letter, showSubmissionInfo = true }: Let
 
             {letter.recipientEmail && (
               <div className="flex items-start gap-2">
-                <span className="font-medium text-blue-700 dark:text-blue-300">Email:</span>
+                <span className="font-mono text-xs font-semibold text-[var(--muted)]">EMAIL:</span>
                 <a
                   href={`mailto:${letter.recipientEmail}`}
-                  className="text-blue-600 underline hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-200"
+                  className="text-[var(--accent)] underline hover:no-underline"
                 >
                   {letter.recipientEmail}
                 </a>
@@ -83,12 +83,12 @@ export default function LetterPreview({ letter, showSubmissionInfo = true }: Let
 
             {letter.recipientWebsite && (
               <div className="flex items-start gap-2">
-                <span className="font-medium text-blue-700 dark:text-blue-300">Website:</span>
+                <span className="font-mono text-xs font-semibold text-[var(--muted)]">WEBSITE:</span>
                 <a
                   href={letter.recipientWebsite}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-blue-600 underline hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-200"
+                  className="text-[var(--accent)] underline hover:no-underline"
                 >
                   {letter.recipientWebsite}
                 </a>
@@ -96,14 +96,14 @@ export default function LetterPreview({ letter, showSubmissionInfo = true }: Let
             )}
           </div>
 
-          <p className="mt-3 text-xs text-blue-700 dark:text-blue-300">
+          <p className="mt-3 text-xs text-[var(--muted)]">
             <strong>Tip:</strong> Save a copy of your submission for your records. If the company fails to respond within 45 days, you may file a complaint with the MN Attorney General.
           </p>
         </div>
       )}
 
       {/* Letter Content */}
-      <div className="rounded-lg border border-zinc-200 bg-white p-6 font-serif text-sm leading-relaxed text-zinc-900 shadow-sm dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100">
+      <div className="border-2 border-[var(--border)] bg-[var(--card)] p-6 font-serif text-sm leading-relaxed text-[var(--foreground)]">
         {/* Date */}
         <p className="mb-4">{letter.date}</p>
 
@@ -111,7 +111,7 @@ export default function LetterPreview({ letter, showSubmissionInfo = true }: Let
         <div className="mb-4">
           <p className="font-bold">{letter.recipientName}</p>
           {letter.recipientAddress && (
-            <p className="text-zinc-600 dark:text-zinc-400">{letter.recipientAddress}</p>
+            <p className="text-[var(--muted)]">{letter.recipientAddress}</p>
           )}
         </div>
 

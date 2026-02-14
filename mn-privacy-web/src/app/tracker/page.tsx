@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Header from '@/components/Header';
 import { TrackedRequest, RequestStatus, REQUEST_TYPES } from '@/lib/types';
 import {
   getAllRequests,
@@ -15,13 +16,13 @@ import {
 } from '@/lib/storage';
 import { format, differenceInDays, isPast } from 'date-fns';
 
-const STATUS_LABELS: Record<RequestStatus, { label: string; color: string }> = {
-  pending: { label: 'Pending', color: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400' },
-  acknowledged: { label: 'Acknowledged', color: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400' },
-  completed: { label: 'Completed', color: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' },
-  denied: { label: 'Denied', color: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400' },
-  'no-response': { label: 'No Response', color: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400' },
-  appealed: { label: 'Appealed', color: 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400' },
+const STATUS_LABELS: Record<RequestStatus, { label: string; className: string }> = {
+  pending: { label: 'Pending', className: 'tag status-warning' },
+  acknowledged: { label: 'Acknowledged', className: 'tag' },
+  completed: { label: 'Completed', className: 'tag status-active' },
+  denied: { label: 'Denied', className: 'tag status-error' },
+  'no-response': { label: 'No Response', className: 'tag status-error' },
+  appealed: { label: 'Appealed', className: 'tag' },
 };
 
 type FilterStatus = RequestStatus | 'all' | 'overdue';
@@ -119,12 +120,12 @@ export default function TrackerPage() {
     const daysLeft = differenceInDays(deadlineDate, new Date());
 
     if (status === 'completed' || status === 'denied') {
-      return <span className="text-zinc-500">—</span>;
+      return <span className="text-[var(--muted)]">—</span>;
     }
 
     if (daysLeft < 0) {
       return (
-        <span className="font-medium text-red-600 dark:text-red-400">
+        <span className="font-mono text-xs font-bold text-[var(--error)]">
           {Math.abs(daysLeft)} days overdue
         </span>
       );
@@ -132,54 +133,65 @@ export default function TrackerPage() {
 
     if (daysLeft <= 7) {
       return (
-        <span className="font-medium text-orange-600 dark:text-orange-400">
+        <span className="font-mono text-xs font-bold text-[var(--warning)]">
           {daysLeft} days left
         </span>
       );
     }
 
     return (
-      <span className="text-zinc-600 dark:text-zinc-400">
+      <span className="font-mono text-xs text-[var(--muted)]">
         {daysLeft} days left
       </span>
     );
   };
 
+  const FILTER_OPTIONS: { id: FilterStatus; label: string }[] = [
+    { id: 'all', label: 'All' },
+    { id: 'pending', label: 'Pending' },
+    { id: 'acknowledged', label: 'Acknowledged' },
+    { id: 'completed', label: 'Completed' },
+    { id: 'denied', label: 'Denied' },
+    { id: 'no-response', label: 'No Response' },
+    { id: 'overdue', label: 'Overdue' },
+    { id: 'appealed', label: 'Appealed' },
+  ];
+
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
-      {/* Header */}
-      <header className="border-b border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
-          <Link href="/" className="text-xl font-bold text-zinc-900 dark:text-zinc-100">
-            MN Privacy Shield
-          </Link>
+    <div className="min-h-screen bg-[var(--background)]">
+      <Header />
+
+      <main className="mx-auto max-w-6xl px-4 py-8">
+        <div className="mb-6 flex items-center justify-between">
+          <div>
+            <p className="font-mono text-xs font-semibold uppercase tracking-widest text-[var(--accent)]">
+              [TRACKER]
+            </p>
+            <h1 className="mt-1 text-2xl font-black uppercase tracking-tight text-[var(--foreground)]">
+              Request Tracker
+            </h1>
+          </div>
           <Link
             href="/generator"
-            className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+            className="btn-primary px-4 py-2"
           >
             + New Request
           </Link>
         </div>
-      </header>
-
-      <main className="mx-auto max-w-6xl px-4 py-8">
-        <h1 className="mb-6 text-2xl font-bold text-zinc-900 dark:text-zinc-100">
-          Request Tracker
-        </h1>
 
         {/* Alerts */}
         {overdueRequests.length > 0 && (
-          <div className="mb-6 rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-800 dark:bg-red-950/30">
-            <h2 className="font-semibold text-red-800 dark:text-red-400">
-              {overdueRequests.length} Overdue Request{overdueRequests.length !== 1 ? 's' : ''}
-            </h2>
-            <p className="mt-1 text-sm text-red-700 dark:text-red-400">
+          <div className="mb-6 border-2 border-[var(--error)] bg-[var(--error-bg)] p-4">
+            <p className="font-mono text-xs font-semibold uppercase tracking-widest text-[var(--error)]">
+              [{overdueRequests.length} OVERDUE]
+            </p>
+            <p className="mt-1 text-sm text-[var(--foreground)]">
               These companies have exceeded the 45-day response deadline. Consider filing a complaint with the{' '}
               <a
                 href="https://www.ag.state.mn.us/Data-Privacy/Complaint/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="font-medium underline"
+                className="font-medium text-[var(--error)] underline"
               >
                 Minnesota Attorney General
               </a>.
@@ -188,18 +200,19 @@ export default function TrackerPage() {
         )}
 
         {upcomingDeadlines.length > 0 && (
-          <div className="mb-6 rounded-lg border border-yellow-200 bg-yellow-50 p-4 dark:border-yellow-800 dark:bg-yellow-950/30">
-            <h2 className="font-semibold text-yellow-800 dark:text-yellow-400">
-              {upcomingDeadlines.length} Deadline{upcomingDeadlines.length !== 1 ? 's' : ''} Within 7 Days
-            </h2>
-            <ul className="mt-2 space-y-1 text-sm text-yellow-700 dark:text-yellow-400">
+          <div className="mb-6 border-2 border-[var(--warning)] bg-[var(--warning-bg)] p-4">
+            <p className="font-mono text-xs font-semibold uppercase tracking-widest text-[var(--warning)]">
+              [{upcomingDeadlines.length} DEADLINE{upcomingDeadlines.length !== 1 ? 'S' : ''} WITHIN 7 DAYS]
+            </p>
+            <ul className="mt-2 space-y-1 text-sm text-[var(--foreground)]">
               {upcomingDeadlines.slice(0, 3).map((req) => (
-                <li key={req.id}>
-                  <strong>{req.brokerName}</strong> — {format(new Date(req.deadline), 'MMM d, yyyy')}
+                <li key={req.id} className="flex gap-2">
+                  <span className="font-mono">—</span>
+                  <span><strong>{req.brokerName}</strong> — {format(new Date(req.deadline), 'MMM d, yyyy')}</span>
                 </li>
               ))}
               {upcomingDeadlines.length > 3 && (
-                <li className="text-yellow-600">and {upcomingDeadlines.length - 3} more...</li>
+                <li className="text-[var(--muted)]">and {upcomingDeadlines.length - 3} more...</li>
               )}
             </ul>
           </div>
@@ -207,69 +220,70 @@ export default function TrackerPage() {
 
         {/* Stats */}
         <div className="mb-6 grid gap-4 sm:grid-cols-4">
-          <div className="rounded-lg border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900">
-            <p className="text-sm text-zinc-500 dark:text-zinc-400">Total Requests</p>
-            <p className="text-2xl font-bold text-zinc-900 dark:text-zinc-100">{requests.length}</p>
+          <div className="card p-4">
+            <p className="font-mono text-[10px] font-semibold uppercase tracking-widest text-[var(--muted)]">Total</p>
+            <p className="mt-1 text-2xl font-black text-[var(--foreground)]">{requests.length}</p>
           </div>
-          <div className="rounded-lg border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900">
-            <p className="text-sm text-zinc-500 dark:text-zinc-400">Pending</p>
-            <p className="text-2xl font-bold text-yellow-600">{requests.filter(r => r.status === 'pending').length}</p>
+          <div className="card p-4">
+            <p className="font-mono text-[10px] font-semibold uppercase tracking-widest text-[var(--muted)]">Pending</p>
+            <p className="mt-1 text-2xl font-black text-[var(--warning)]">{requests.filter(r => r.status === 'pending').length}</p>
           </div>
-          <div className="rounded-lg border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900">
-            <p className="text-sm text-zinc-500 dark:text-zinc-400">Completed</p>
-            <p className="text-2xl font-bold text-green-600">{requests.filter(r => r.status === 'completed').length}</p>
+          <div className="card p-4">
+            <p className="font-mono text-[10px] font-semibold uppercase tracking-widest text-[var(--muted)]">Completed</p>
+            <p className="mt-1 text-2xl font-black text-[var(--success)]">{requests.filter(r => r.status === 'completed').length}</p>
           </div>
-          <div className="rounded-lg border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900">
-            <p className="text-sm text-zinc-500 dark:text-zinc-400">Overdue</p>
-            <p className="text-2xl font-bold text-red-600">{overdueRequests.length}</p>
+          <div className="card p-4">
+            <p className="font-mono text-[10px] font-semibold uppercase tracking-widest text-[var(--muted)]">Overdue</p>
+            <p className="mt-1 text-2xl font-black text-[var(--error)]">{overdueRequests.length}</p>
           </div>
         </div>
 
         {/* Filters and Actions */}
         <div className="mb-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex flex-wrap gap-2">
-            {(['all', 'pending', 'acknowledged', 'completed', 'denied', 'overdue'] as FilterStatus[]).map((status) => (
+          <div className="flex flex-wrap gap-2" role="group" aria-label="Filter requests by status">
+            {FILTER_OPTIONS.map((option) => (
               <button
-                key={status}
-                onClick={() => setFilter(status)}
-                className={`rounded-full px-3 py-1 text-sm font-medium transition-colors ${
-                  filter === status
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-zinc-100 text-zinc-700 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700'
+                key={option.id}
+                onClick={() => setFilter(option.id)}
+                aria-pressed={filter === option.id}
+                className={`border-2 px-3 py-1 font-mono text-xs font-semibold uppercase tracking-wide transition-colors ${
+                  filter === option.id
+                    ? 'border-[var(--accent)] bg-[var(--accent)] text-[var(--accent-foreground)]'
+                    : 'border-[var(--border)] text-[var(--foreground)] hover:bg-[var(--secondary)]'
                 }`}
               >
-                {status === 'all' ? 'All' : status === 'overdue' ? 'Overdue' : STATUS_LABELS[status]?.label || status}
+                {option.label}
               </button>
             ))}
           </div>
           <div className="flex gap-2">
             <button
               onClick={handleExport}
-              className="rounded-lg border border-zinc-300 px-3 py-1.5 text-sm font-medium text-zinc-700 hover:bg-zinc-50 dark:border-zinc-600 dark:text-zinc-300 dark:hover:bg-zinc-800"
+              className="btn-secondary px-3 py-1.5 text-xs"
             >
               Export
             </button>
             <button
               onClick={handleImport}
-              className="rounded-lg border border-zinc-300 px-3 py-1.5 text-sm font-medium text-zinc-700 hover:bg-zinc-50 dark:border-zinc-600 dark:text-zinc-300 dark:hover:bg-zinc-800"
+              className="btn-secondary px-3 py-1.5 text-xs"
             >
               Import
             </button>
             <button
               onClick={handleClearAllData}
-              className="rounded-lg border border-red-300 px-3 py-1.5 text-sm font-medium text-red-700 hover:bg-red-50 dark:border-red-600 dark:text-red-300 dark:hover:bg-red-950/30"
+              className="border-2 border-[var(--error)] px-3 py-1.5 font-mono text-xs font-semibold uppercase tracking-wide text-[var(--error)] transition-colors hover:bg-[var(--error-bg)]"
             >
-              Clear Local Data
+              Clear
             </button>
           </div>
         </div>
 
         {/* Request List */}
         {loading ? (
-          <div className="py-12 text-center text-zinc-500">Loading...</div>
+          <div className="py-12 text-center text-[var(--muted)]">Loading...</div>
         ) : filteredRequests.length === 0 ? (
-          <div className="rounded-lg border border-zinc-200 bg-white p-12 text-center dark:border-zinc-800 dark:bg-zinc-900">
-            <p className="text-zinc-500 dark:text-zinc-400">
+          <div className="card p-12 text-center">
+            <p className="text-[var(--muted)]">
               {requests.length === 0
                 ? 'No requests tracked yet. Generate some letters to get started!'
                 : 'No requests match the current filter.'}
@@ -277,7 +291,7 @@ export default function TrackerPage() {
             {requests.length === 0 && (
               <Link
                 href="/generator"
-                className="mt-4 inline-block rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+                className="btn-primary mt-4 inline-block px-4 py-2"
               >
                 Create Requests
               </Link>
@@ -288,15 +302,15 @@ export default function TrackerPage() {
             {filteredRequests.map((req) => (
               <div
                 key={req.id}
-                className="rounded-lg border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900"
+                className="card p-4"
               >
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
-                      <h3 className="font-semibold text-zinc-900 dark:text-zinc-100">
+                      <h3 className="font-bold uppercase tracking-tight text-[var(--foreground)]">
                         {req.brokerName}
                       </h3>
-                      <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_LABELS[req.status].color}`}>
+                      <span className={STATUS_LABELS[req.status].className}>
                         {STATUS_LABELS[req.status].label}
                       </span>
                     </div>
@@ -306,20 +320,20 @@ export default function TrackerPage() {
                         return (
                           <span
                             key={type}
-                            className="rounded bg-zinc-100 px-1.5 py-0.5 text-xs text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400"
+                            className="border border-[var(--secondary)] bg-[var(--secondary)] px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-wide text-[var(--muted)]"
                           >
                             {info?.name || type}
                           </span>
                         );
                       })}
                     </div>
-                    <div className="mt-2 flex flex-wrap gap-4 text-sm text-zinc-500 dark:text-zinc-400">
+                    <div className="mt-2 flex flex-wrap gap-4 text-sm text-[var(--muted)]">
                       <span>Sent: {format(new Date(req.dateSent), 'MMM d, yyyy')}</span>
                       <span>Deadline: {format(new Date(req.deadline), 'MMM d, yyyy')}</span>
                       <span>{getDeadlineDisplay(req.deadline, req.status)}</span>
                     </div>
                     {req.notes && (
-                      <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
+                      <p className="mt-2 text-sm text-[var(--muted)]">
                         Notes: {req.notes}
                       </p>
                     )}
@@ -328,18 +342,21 @@ export default function TrackerPage() {
                     <select
                       value={req.status}
                       onChange={(e) => handleStatusChange(req.id, e.target.value as RequestStatus)}
-                      className="rounded-lg border border-zinc-300 bg-white px-2 py-1 text-sm dark:border-zinc-600 dark:bg-zinc-800"
+                      className="border-2 border-[var(--border)] bg-[var(--background)] px-2 py-1 text-sm"
+                      aria-label={`Change status for ${req.brokerName}`}
                     >
                       <option value="pending">Pending</option>
                       <option value="acknowledged">Acknowledged</option>
                       <option value="completed">Completed</option>
                       <option value="denied">Denied</option>
+                      <option value="no-response">No Response</option>
                       <option value="appealed">Appealed</option>
                     </select>
                     <button
                       onClick={() => handleDelete(req.id)}
-                      className="rounded-lg border border-zinc-300 p-1 text-zinc-500 hover:bg-zinc-50 hover:text-red-600 dark:border-zinc-600 dark:hover:bg-zinc-800"
+                      className="border-2 border-[var(--border)] p-1 text-[var(--muted)] transition-colors hover:border-[var(--error)] hover:text-[var(--error)]"
                       title="Delete"
+                      aria-label={`Delete request for ${req.brokerName}`}
                     >
                       <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
